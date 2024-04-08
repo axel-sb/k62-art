@@ -1,0 +1,17 @@
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="3.34093 7.46629 101 101" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs />
+  <clipPath id="ArtboardFrame">
+    <rect height="101" width="101" x="3.34093" y="7.46629" />
+  </clipPath>
+  <g clip-path="url(#ArtboardFrame)" id="Layer" vectornator:layerName="Layer">
+    <g opacity="1" vectornator:layerName="Group 1">
+      <path d="M3.84093 7.96629L103.841 7.96629L103.841 7.96629L103.841 107.966L103.841 107.966L3.84093 107.966L3.84093 107.966L3.84093 7.96629L3.84093 7.96629Z" fill="#111827" fill-opacity="0.866667" fill-rule="nonzero" opacity="1" stroke="#f5f5f2d9" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="1" vectornator:layerName="rect" />
+      <path d="M99.3409 12.4663L99.3409 103.466L8.34093 103.466L8.34093 12.4663L99.3409 12.4663M103.841 7.96629L3.84093 7.96629L3.84093 107.966L103.841 107.966L103.841 7.96629L103.841 7.96629Z" fill="#f5f5f2d9" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path" />
+      <g opacity="1" vectornator:layerName="g">
+        <path d="M12.3409 99.0663L19.0509 99.0663C20.0409 96.6563 21.5709 92.6963 22.5509 90.2463L22.6009 90.0963L36.5709 90.0963L40.5709 99.4763L47.4309 99.0763C45.9009 96.0663 44.0709 92.0063 42.6409 88.8463L31.0909 63.0763L27.9309 63.4763C26.8409 66.3363 25.6109 69.1963 23.7409 73.4063L12.3409 99.0763L12.3409 99.0663ZM29.5609 73.1963L34.6409 85.4263L24.4709 85.4263L29.5509 73.1963L29.5609 73.1963Z" fill="#f5f5f2d9" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path" />
+        <path d="M59.1109 99.0663C58.9609 97.6663 58.9109 93.7563 58.9109 91.8463L58.9109 70.9863C58.9109 69.0263 58.9609 65.0163 59.1109 63.5663C57.4809 63.7663 54.2209 63.8163 52.2509 63.8163C52.5009 66.2263 52.6009 72.6863 52.6009 75.8963L52.6009 86.9763C52.6009 90.2363 52.5009 96.6563 52.2509 99.0563L59.1109 99.0563L59.1109 99.0663Z" fill="#f5f5f2d9" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path" />
+        <path d="M95.3409 89.7363C92.2809 92.5963 88.9709 94.4463 84.4309 94.4463C77.8209 94.4463 72.6409 89.7863 72.6409 81.3063C72.6409 73.9363 77.6209 68.4263 84.7309 68.4263C88.0909 68.4263 91.3409 69.7263 93.6609 71.6363L95.0909 66.0163C92.4709 64.1663 88.5309 62.9563 84.7309 62.9563C73.9709 62.9563 66.2209 71.4263 66.2209 82.3563C66.2209 91.8863 73.4309 99.9563 83.7909 99.9563C87.9809 99.9563 91.7409 98.6563 95.0409 96.2463L95.3409 89.7263L95.3409 89.7363Z" fill="#f5f5f2d9" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path" />
+      </g>
+    </g>
+  </g>
+</svg>

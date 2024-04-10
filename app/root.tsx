@@ -1,3 +1,4 @@
+// #region imports
 import { useForm, getFormProps /* getInputProps */ } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { invariantResponse } from '@epic-web/invariant'
@@ -27,13 +28,11 @@ import {
 	useSubmit,
 } from '@remix-run/react'
 import { withSentry } from '@sentry/remix'
-import { useId, useRef } from 'react'
+import { useRef } from 'react'
 import { HoneypotProvider } from 'remix-utils/honeypot/react'
 // import { c } from 'vitest/dist/reporters-P7C2ytIv.js'
 import { z } from 'zod'
 import {
-	useDebounce,
-	useIsPending,
 	combineHeaders,
 	getDomainUrl,
 	getUserImgSrc,
@@ -42,6 +41,7 @@ import {
 import styleSheetUrl from './app.css?url'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { EpicProgress } from './components/progress-bar.tsx'
+import { SearchBar } from './components/search-bar.tsx'
 import { useToast } from './components/toaster.tsx'
 import { Button } from './components/ui/button.tsx'
 import {
@@ -52,10 +52,7 @@ import {
 	DropdownMenuTrigger,
 } from './components/ui/dropdown-menu.tsx'
 import { Icon, href as iconsHref } from './components/ui/icon.tsx'
-import { Input } from './components/ui/input.tsx'
-import { Label } from './components/ui/label.tsx'
 import { EpicToaster } from './components/ui/sonner.tsx'
-import { StatusButton } from './components/ui/status-button.tsx'
 
 import {
 	getArtworksByAny, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
@@ -76,6 +73,10 @@ import { makeTimings, time } from './utils/timing.server.ts'
 import { getToast } from './utils/toast.server.ts'
 import { useOptionalUser, useUser } from './utils/user.ts'
 
+// #endregion imports
+
+// #region links & meta
+
 export const links: LinksFunction = () => {
 	return [
 		// Preload svg sprite as a resource to avoid render blocking
@@ -94,7 +95,7 @@ export const links: LinksFunction = () => {
 			crossOrigin: 'use-credentials',
 		} as const, // necessary to make typescript happy
 		//These should match the css preloads above to avoid css as render blocking resource
-		{ rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
+		{ rel: 'icon', type: 'image/png', href: '/favicons/favicon.png' },
 		{ rel: 'stylesheet', href: tailwindStyleSheetUrl },
 		{ rel: 'stylesheet', href: styleSheetUrl },
 	].filter(Boolean)
@@ -110,6 +111,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	]
 }
 
+// #endregion links & meta
+
 /* const LoginFormSchema = z.object({
 	username: UsernameSchema,
 	password: PasswordSchema,
@@ -117,7 +120,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	remember: z.boolean().optional(),
 }) */
 //🚩
-//🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  Loader 🟢
+//🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  ⬇︎ Loader ⬇︎  🟠
+// #region loader
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const timings = makeTimings('root loader')
@@ -126,7 +130,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		type: 'getUserId',
 		desc: 'getUserId in root',
 	})
-	console.log('🟡 userId →', userId) //__________________________________________  ⚪️
+	console.log('🟡 userId →', userId) //___ ⚪️
 
 	const user = userId
 		? await time(
@@ -159,7 +163,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	}
 	const { toast, headers: toastHeaders } = await getToast(request)
 	const honeyProps = honeypot.getInputProps()
+
 	// 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣
+
 	const url = new URL(request.url) //
 	const queryAny = url.searchParams.get('queryAny') ?? undefined
 	const dataAny = await getArtworksByAny(queryAny)
@@ -189,9 +195,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		},
 	)
 }
+// #endregion loader
+//🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  ⬆︎ Loader ⬆︎  🟠
 
-//+ .................................................................... Search Bar
-export function SearchBar({
+//+ ................................................................ Search Bar 2  🔎.
+
+// #region search bar 2
+
+/* export function SearchBar2({
 	status,
 	autoFocus = false,
 	autoSubmit = false,
@@ -200,19 +211,14 @@ export function SearchBar({
 	autoFocus?: boolean
 	autoSubmit?: boolean
 }) {
-	// const navigation = useNavigation()
-	/* const searching =
-		navigation.location &&
-		new URLSearchParams(navigation.location.search).has('q') */
-	const { queryAny /* queryArtist, queryStyle, querySubject */ } =
+	const { queryAny  } =
 		useLoaderData<typeof loader>()
 	const id = useId()
-	// const [searchParams] = useSearchParams()
 
 	const submit = useSubmit()
 	const isSubmitting = useIsPending({
 		formMethod: 'GET',
-		formAction: '/artworks', // 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣
+		formAction: '/artworks',
 	})
 
 	const handleFormChange = useDebounce((form: HTMLFormElement) => {
@@ -223,8 +229,8 @@ export function SearchBar({
 		<Form
 			id="search-form"
 			method="GET"
-			action="/artworks" // 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣
-			className="flex flex-wrap items-center justify-center gap-2"
+			action="/artworks"
+			className="search-bar-2 flex flex-wrap items-center justify-center gap-2"
 			onChange={e => autoSubmit && handleFormChange(e.currentTarget)}
 		>
 			<div className="flex-1">
@@ -253,7 +259,9 @@ export function SearchBar({
 			</div>
 		</Form>
 	)
-}
+} */
+
+// #endregion search bar
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	const headers = {
@@ -328,15 +336,16 @@ function App() {
 	const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />
 	useToast(data.toast)
 
+
 	//_ _________________________________________________________________ Return 🟡
 	return (
 		<Document nonce={nonce} theme={theme} env={data.ENV}>
-			<div className="flex h-screen flex-col justify-between">
-				<header className="container py-6">
+			<div className="flex flex-col h-screen items-center">
+				<header className="container max-w-xl px-4 py-6">
 					<nav className="flex items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
 						{/*	<Logo />*/}
 
-						{/* // TODO                                                           */}
+						{/* // TODO                                                      */}
 						{/*{' '}
 						<CheckboxField
 							labelProps={{
@@ -348,8 +357,7 @@ function App() {
 						/>{' '}
 						*/}
 
-						{/* //_ _______________________________________________  Search Bar  */}
-						<div className="block w-full">{searchBar}</div>
+						<div className="block w-full">{searchBar} </div>
 
 						<div className="flex w-12 items-center p-0">
 							{user ? (

@@ -13,37 +13,73 @@ header,
 	display: none;
 }
 
-figure {
-	display: flex;
-	width: 100vw;
-	height: calc(100vh - 8rem);
+main {
+  display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	max-width: 100vw;
-	object-position: center;
+  max-width: 80ch;
+  color: #bcb4a6;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+	height: 100%;
+}
+
+figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 3rem;
+	> img {
+		max-height: calc(100vh - 5rem);
+		max-width: clamp(1rem, 100%, 90vw);
+    object-fit: contain;
+    object-position: center;
+	}
 }
 
 figcaption {
+  position: fixed;
+  bottom: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	max-width: 80ch;
 	color: #bcb4a6;
-	text-align: center;
+	text-align: left;
 	width: 100%;
-	padding-top: 2rem;
 	font-size: large;
 }
 
-figure:has(+ details[open]) {
-  opacity: 0;
+figure:has(details[open]) {
+	> img {
+		display: none;
+	}
+  figcaption {
+    position: static;
+  }
+
+  details[open] > figcaption {
+    display: none;
+  }
 }
 
+
+
 details#artwork-info {
-	grid-area: footer;
-	padding: 0 1rem;
+	max-width: 80ch;
 	z-index: 3;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: flex-start;
 	width: 100%;
+	padding: 1.5rem;
+	color: #bcb4a6;
 	font-family:
 		system-ui,
 		-apple-system,
@@ -69,85 +105,97 @@ details#artwork-info {
 	}
 }
 
-details[open] {
-  position: absolute;
-  top: 0;
-}
-
-details[open] summary {
-
-}
-
-summary {
-	display: flex;
-	list-style: none;
-	padding: 1.5rem;
-	color: #bcb4a6;
-	justify-content: space-between;
-	height: 5rem;
-}
-summary::before {
-	position: absolute;
-	left: 0;
-	top: 0;
-	/* content: url('../../../icons/info-64.svg'); */
+.details-marker {
 	width: 2rem;
 	height: 2rem;
 }
 
-/* remove list items with no content */
-li:has(.empty) {
-  display: none;
-}
-
-/* details[open] summary::before {
-	content: ' 🙈 ';
-	font-size: 2rem;
-} */
-
 summary > form {
-  position: absolute;
-  right: 1.5rem;
-  left: calc(100vw - 3rem);
-}
-
-#artwork-title {
-	padding-top: 2rem;
-	font-size: large;
-}
-
-ul {
-	padding: 2rem 1rem;
-}
-
-li {
-	list-style: none;
-	font-weight: 200;
-	padding: 0.75em 0;
-	text-align: balance;
-	line-height: 1.5rem;
-}
-
-div.description,
-figcaption {
-	hyphens: auto;
-	text-wrap: balance;
-	padding: 1rem 0;
+	height: 2rem;
 }
 
 button.favorite {
 	font-size: 2rem;
-	/* font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif; */
-	font-family: Arial;
-	border: none;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+		Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	background-color: transparent;
+	box-shadow: 0 0 0 .5px #bcb4a6;
+	border-radius: 0.5rem;
 	box-shadow: none;
 	color: #bcb4a6;
+	opacity: 0.5;
+	/* Enable panning and pinch zoom gestures, but disable additional non-standard gestures such as double-tap to zoom. Disabling double-tap to zoom removes the need for browsers to delay the generation of click events when the user taps the screen.  */
 	touch-action: manipulation;
 	line-height: 1;
 }
 
 button.favorite:hover {
-	border: 1px solid #bcb4a6;
+	box-shadow: 0 0 0 .5px #eae9c2aa;
 	outline: 0;
-	border-radius: 0.5rem;
 }
+
+button.favorite:enabled {
+	color: #eae9c2;
+	opacity: 1;
+}
+
+details[open] {
+	position: absolute;
+	top: 0;
+}
+
+details[open] summary {
+	img {
+		display: none;
+	}
+}
+
+summary {
+	display: flex;
+	list-style: none;
+	max-width: 80ch;
+	color: #bcb4a6;
+	justify-content: space-between;
+}
+summary::before {
+	/* position: absolute;
+	left: 0;
+	top: 0; */
+	/* content: url('../../../icons/info-64.svg'); */
+	width: 2rem;
+	height: 2rem;
+}
+
+details[open] summary::before {
+	content: ' 🙈 ';
+	font-size: 2rem;
+	line-height: 1;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+	padding-block: 2rem;
+}
+
+li {
+	list-style: none;
+	font-weight: 200;
+  white-space: break-spaces;
+	text-wrap: balance;
+	line-height: 1.5rem;
+  max-width: 80ch;
+}
+
+span {
+  white-space: normal;
+}
+
+li:nth-child(2) { order: 5; }
+/*
+li:nth-child(1) { order: 2; }
+li:nth-child(3) { order: 1; }
+li:nth-child(4) { order: 3; }
+li:nth-child(5) { order: 1; }
+*/

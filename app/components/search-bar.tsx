@@ -1,7 +1,7 @@
-import { loader } from '#app/root.tsx'
-import { useIsPending, useDebounce } from '#app/utils/misc'
 import { useLoaderData, useSubmit, Form } from '@remix-run/react'
 import { useId } from 'react'
+import { type loader } from '#app/root.tsx'
+import { useIsPending, useDebounce } from '#app/utils/misc'
 import { Icon } from './ui/icon'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -39,7 +39,7 @@ export function SearchBar({
 		<Form
 			id="search-form"
 			method="GET"
-			action="/"
+			action="/artworks"
 			className="flex flex-wrap items-center justify-center gap-2"
 			onChange={e => autoSubmit && handleFormChange(e.currentTarget)}
 		>

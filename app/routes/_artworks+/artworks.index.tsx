@@ -108,7 +108,7 @@ export default function ArtworksPage() {
 				{dataAny.map(artwork => (
 					<li key={artwork.id}>
 						<Link to={`${artwork.id}`}>
-							{artwork.title ? (
+							{artwork.Title ? (
 								<>
 									<figure>
 										<img

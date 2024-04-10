@@ -137,27 +137,27 @@ model Connection {
 
 model Artwork {
   id                        Int      @id @default(autoincrement())
-  title                     String?
-  artist_display            String?
-  artist_title              String?
+  Title                     String?  @map("title")
+  Artist                    String?  @map("artist_display")
+  artist_title              String?  @map("artist_title")
   date_end                  Int?
-  date_display              String?
+  Date                      String?  @map("date_display")
   provenance_text           String?
   alt_text                  String?
   width                     Int?
   height                    Int?
-  description               String?
-  place_of_origin           String?
-  medium_display            String?
-  artwork_type_title        String?
-  category_titles           String?
-  term_titles               String?
-  style_title               String?
-  style_titles              String?
-  subject_titles            String?
-  classification_titles     String?
-  technique_titles          String?
-  theme_titles              String?
+  Description               String?  @map("description")
+  Place                     String?  @map("place_of_origin")
+  Medium                    String?  @map("medium_display")
+  Type                      String?  @map("artwork_type_title")
+  Category                  String?  @map("category_titles")
+  Term                      String?  @map("term_titles")
+  Style                     String?  @map("style_title")
+  Styles                    String?  @map("style_titles")
+  Subject                   String?  @map("subject_titles")
+  Classification            String?  @map("classification_titles")
+  Technique                 String?  @map("technique_titles")
+  Theme                     String?  @map("theme_titles")
   colorfulness              Int?
   color_percentage          Int?
   color_population          Int?

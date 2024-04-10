@@ -55,7 +55,7 @@ import { Icon, href as iconsHref } from './components/ui/icon.tsx'
 import { EpicToaster } from './components/ui/sonner.tsx'
 
 import {
-	getArtworksByAny, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
+	getArtworksByArtist, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
 	/* getArtworksByArtist,
 	getArtworksByStyle,
 	getArtworksBySubject, */
@@ -167,8 +167,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	// 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣
 
 	const url = new URL(request.url) //
-	const queryAny = url.searchParams.get('queryAny') ?? undefined
-	const dataAny = await getArtworksByAny(queryAny)
+	// const queryAny = url.searchParams.get('queryAny') ?? undefined
+	//  let dataAny = await getArtworksByAny(queryAny)
+	const queryArtist = url.searchParams.get('queryArtist') ?? undefined
+	let dataArtist = await getArtworksByArtist(queryArtist)
 
 	return json(
 		{
@@ -184,8 +186,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			ENV: getEnv(),
 			toast,
 			honeyProps,
-			dataAny,
-			queryAny,
+			dataArtist,
+			queryArtist,
 		},
 		{
 			headers: combineHeaders(
@@ -336,11 +338,10 @@ function App() {
 	const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />
 	useToast(data.toast)
 
-
 	//_ _________________________________________________________________ Return 🟡
 	return (
 		<Document nonce={nonce} theme={theme} env={data.ENV}>
-			<div className="flex flex-col h-screen items-center">
+			<div className="flex h-screen flex-col items-center">
 				<header className="container max-w-xl px-4 py-6">
 					<nav className="flex items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
 						{/*	<Logo />*/}

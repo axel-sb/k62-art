@@ -3,7 +3,7 @@
 }
 
 main {
-  padding: 1rem;
+	padding: 1rem;
 }
 
 .artworks-preview {
@@ -15,7 +15,7 @@ main {
 	z-index: 2;
 	max-height: 150vh;
 	margin: 0;
-	gap: 1rem;
+	row-gap: 2rem;
 	overflow: hidden auto;
 }
 
@@ -28,15 +28,54 @@ li {
 img {
 	max-width: 100%;
 	margin: 0 auto;
+	border-radius: 0.3rem;
 }
 
-figcaption {
-	color: #f5f5f2aa;
-	text-align: center;
+figure {
+	position: relative;
+}
+
+figure figcaption {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0.5em;
+	overflow: auto;
+	background: #dfdfd6;
+	box-shadow:
+		0 -0.1em 0.1em #d3ccc2,
+		0 0 0 0.5px #000,
+		0 -0.05em 0 0.5px #000d,
+		0 0.25em 0.25em #0003,
+		0 0.45em 0.45em #0001,
+		0 0 0.5em #bcb4a680,
+		0 0 1em #bcb4a650;
 	width: 100%;
-	padding: 0.5rem 0 0.3rem;
-	font-size: small;
+	max-height: -moz-fit-content;
+	max-height: fit-content;
+	min-height: 50%;
+	padding: 0.5em 0.2em;
+	border-radius: 0.3em;
+	color: #020817;
+	font-size: clamp(0.85rem, 0.6011rem + 1.1236vw, 1.5rem);
+	line-height: 1.1;
+	font-weight: 400;
+	text-align: left;
 	text-decoration: none;
+	opacity: 0;
+	animation: 3s 0s fade-out forwards;
+	z-index: 10;
+	button {
+		margin: 0.5em 0.2em 0.3em auto;
+	}
+}
+
+figure:hover figcaption {
+	opacity: 1;
 }
 
 button.more {
@@ -298,30 +337,7 @@ button:active {
 
 /*  #endregion search ⬆ 📤 */
 /*
-main.artworks-preview {
-	display: flex;
-	width: 100%;
-	animation: 3s 0s fade-in forwards;
-	opacity: 0;
-	flex-flow: column wrap;
-	list-style: none;
-	z-index: 2;
-	background: #171717;
-	max-height: 100vh;
-	margin: 0;
-	gap: 1rem;
-	overflow: hidden auto;
-}
 
-li {
-	height: auto;
-	width: calc((100% - 2rem) / 3);
-}
-
-img {
-	max-width: 100%;
-	margin: 0 auto;
-}
 
 figcaption {
 	color: #f5f5f2aa;

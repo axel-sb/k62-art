@@ -20,7 +20,7 @@ export function SearchBar({
 	/* const searching =
 		navigation.location &&
 		new URLSearchParams(navigation.location.search).has('q') */
-	const { queryAny /* queryArtist, queryStyle, querySubject */ } =
+	const { queryArtist /* queryArtist, queryStyle, querySubject */ } =
 		useLoaderData<typeof loader>()
 	const id = useId()
 	// const [searchParams] = useSearchParams()
@@ -49,9 +49,9 @@ export function SearchBar({
 				</Label>
 				<Input
 					type="search"
-					name="queryAny"
-					id="queryAny"
-					defaultValue={queryAny ?? ''}
+					name="queryArtist"
+					id="queryArtist"
+					defaultValue={queryArtist ?? ''}
 					placeholder="Search Artworks"
 					className="w-full"
 					autoFocus={autoFocus}

@@ -16,7 +16,7 @@ import {
 } from '@remix-run/react'
 //import { useEffect, useState } from 'react'
 import {
-	getArtworksByAny,
+	getArtworksByArtist,
 	/* getArtworksByArtist,
 	getArtworksByStyle,
 	getArtworksBySubject, */
@@ -29,9 +29,9 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
-	const queryAny = url.searchParams.get('queryAny') ?? undefined
-	const dataAny = await getArtworksByAny(queryAny)
-	return json({ queryAny, dataAny })
+	const queryArtist = url.searchParams.get('queryArtist') ?? undefined
+	const dataArtist = await getArtworksByArtist(queryArtist)
+	return json({ queryArtist, dataArtist })
 }
 
 /* const queryArtist = url.searchParams.get('queryArtist') ?? undefined
@@ -81,9 +81,9 @@ const Checkbox: React.FC<CheckboxProps> = ({ label, value, onChange }) => {
 //+                                                          export default
 
 export default function ArtworksPage() {
-	const { dataAny } = useLoaderData<typeof loader>()
+	const { dataArtist } = useLoaderData<typeof loader>()
 
-	console.log('🟡 dataAny →', dataAny)
+	console.log('🟡 dataArtist →', dataArtist)
 
 	return (
 		//+ ____________________________________________________________________  return  JSX ↓
@@ -105,7 +105,7 @@ export default function ArtworksPage() {
       */}
 
 			<ul className="artworks-preview">
-				{dataAny.map(artwork => (
+				{dataArtist.map(artwork => (
 					<li key={artwork.id}>
 						<Link to={`${artwork.id}`}>
 							{artwork.Title ? (
@@ -116,6 +116,11 @@ export default function ArtworksPage() {
 											key={artwork.id}
 											src={artwork.image_url ?? '../dummy.jpeg'}
 										/>
+										<figcaption>
+											{artwork.Title}
+											{'  '}
+											{artwork.Artist} <button type="button">more ⮁</button>
+										</figcaption>
 									</figure>
 								</>
 							) : (

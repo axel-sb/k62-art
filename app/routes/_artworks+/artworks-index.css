@@ -1,0 +1,145 @@
+/* #region smol */
+/*+ Smol Article Anchor */
+
+/*+ Smol unbreakable-box */
+.smol-unbreakable-box {
+  --color-light: #e0d4f6;
+  --color-dark: #675883;
+
+  margin: 2rem auto;
+  color: var(--color-dark);
+  background-color: var(--color-light);
+  font-size: 1.15rem;
+  /* Smol Responsive Padding FTW! */
+  padding: clamp(0.75rem, 3%, 2rem);
+  /* Provide a max-width and prevent overflow */
+  width: min(50ch, 90%);
+  /* Help prevent overflow of long words/names/URLs */
+  word-break: break-word;
+  /* Optional, not supported for all languages */
+  hyphens: auto;
+}
+
+.smol-unbreakable-box footer {
+  padding: 0.25em 0.5em;
+  margin-top: 1rem;
+  color: var(--color-light);
+  background-color: var(--color-dark);
+  font-size: 0.9rem;
+  /* Creates a visual box shrunk to `max-content` */
+  width: fit-content;
+}
+
+/*+ Smol responsive-padding */
+/* Another suggested option for the middle ideal value is to use a viewport unit, like 4vw, which works great for components such as models or setting padding on the body. */
+
+.smol-responsive-padding {
+  padding: 1.5rem clamp(1rem, 5%, 3rem);
+}
+
+/* Smol Dropdown https://codepen.io/5t3ph/pen/MWaJePa */
+
+/* #endregion smol */
+
+.container {
+  display: none;
+}
+
+main {
+  padding: 1rem;
+}
+
+.artworks-preview {
+  animation: 3s 0s fade-in forwards;
+  overflow: hidden auto;
+}
+
+li {
+  height: auto;
+  /* md:w-[calc((100%-2rem)/3)] */
+  display: flex;
+  list-style: none;
+}
+
+figure {
+  position: relative;
+
+  img {
+    margin: 0 auto;
+    border-radius: 0.3rem;
+  }
+}
+
+figcaption {
+  display: none;
+}
+
+figure:hover {
+  display: grid;
+  place-items: center;
+
+  img {
+    opacity: 0.85;
+  }
+
+  & figcaption {
+    position: absolute;
+    top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: flex-start;
+    width: clamp(10ch, 100%, 20ch);
+    max-width: 40ch;
+    height: fit-content;
+    padding: 1rem;
+    color: #020817;
+    background: #bcb4a6d0;
+    border-radius: 0.3em;
+    line-height: 1.1;
+    font-weight: 400;
+    animation: 3s 0s fade-out forwards;
+    overflow: hidden;
+
+  }
+}
+
+button.more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px;
+  margin: 1rem 0;
+  position: relative;
+  bottom: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  border-radius: 6px;
+  border: none;
+  background: #6e6d70;
+  box-shadow:
+    0 0.5px 1px rgb(0 0 0 / 10%),
+    inset 0 0.5px 0.5px rgb(255 255 255 / 50%),
+    0 0 0 0.5px rgb(0 0 0 / 12%);
+  color: #dfdedf;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+button.more.button-12:focus {
+  box-shadow:
+    inset 0 0.8px 0 -0.25px rgb(255 255 255 / 20%),
+    0 0.5px 1px rgb(0 0 0 / 10%),
+    0 0 0 3.5px rgb(58 108 217 / 50%);
+  outline: 0;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

@@ -23,7 +23,7 @@ import {
 	useFetcher,
 	useFetchers,
 	useLoaderData,
-	useMatches,
+	// useMatches,
 	// useSearchParams,
 	useSubmit,
 } from '@remix-run/react'
@@ -32,17 +32,19 @@ import { useRef } from 'react'
 import { HoneypotProvider } from 'remix-utils/honeypot/react'
 // import { c } from 'vitest/dist/reporters-P7C2ytIv.js'
 import { z } from 'zod'
+import { Checkbox } from '#app/components/ui/checkbox.tsx'
 import {
 	combineHeaders,
 	getDomainUrl,
 	getUserImgSrc,
 } from '#app/utils/misc.tsx'
-// import { CheckboxField } from '#app/components/forms.tsx'
+
 import styleSheetUrl from './app.css?url'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { EpicProgress } from './components/progress-bar.tsx'
 import { SearchBar } from './components/search-bar.tsx'
-import { useToast } from './components/toaster.tsx'
+// import { useToast } from './components/toaster.tsx'
+import { Avatar } from './components/ugly-avatar'
 import { Button } from './components/ui/button.tsx'
 import {
 	DropdownMenu,
@@ -55,7 +57,8 @@ import { Icon, href as iconsHref } from './components/ui/icon.tsx'
 import { EpicToaster } from './components/ui/sonner.tsx'
 
 import {
-	getArtworksByArtist, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
+	getArtworksByAny,
+	// getArtworksByArtist, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
 	/* getArtworksByArtist,
 	getArtworksByStyle,
 	getArtworksBySubject, */
@@ -86,7 +89,7 @@ export const links: LinksFunction = () => {
 		{
 			rel: 'alternate icon',
 			type: 'image/png',
-			href: '/favicons/favicon-32x32.png',
+			href: '/favicons/favicon-32x32.png media="(prefers-color-scheme: dark)"',
 		},
 		{ rel: 'apple-touch-icon', href: '/favicons/apple-touch-icon.png' },
 		{
@@ -125,7 +128,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const timings = makeTimings('root loader')
-	const userId = await time(() => getUserId(request), {
+	const userId: string | null = await time(() => getUserId(request), {
 		timings,
 		type: 'getUserId',
 		desc: 'getUserId in root',
@@ -168,9 +171,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	const url = new URL(request.url) //
 	// const queryAny = url.searchParams.get('queryAny') ?? undefined
-	//  let dataAny = await getArtworksByAny(queryAny)
-	const queryArtist = url.searchParams.get('queryArtist') ?? undefined
-	let dataArtist = await getArtworksByArtist(queryArtist)
+	// let dataAny = await getArtworksByAny(queryAny)
+	const query = url.searchParams.get('query') ?? undefined
+	let data = await getArtworksByAny(query)
+	let avatar = Avatar()
 
 	return json(
 		{
@@ -186,8 +190,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			ENV: getEnv(),
 			toast,
 			honeyProps,
-			dataArtist,
-			queryArtist,
+			query,
+			data,
+			avatar,
 		},
 		{
 			headers: combineHeaders(
@@ -197,6 +202,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		},
 	)
 }
+
 // #endregion loader
 //🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  ⬆︎ Loader ⬆︎  🟠
 
@@ -304,7 +310,11 @@ function Document({
 	env?: Record<string, string>
 }) {
 	return (
-		<html lang="en" className={`${theme} h-full overflow-x-hidden`}>
+		<html
+			lang="en"
+			translate="no"
+			className={`${theme} h-screen overflow-x-hidden`}
+		>
 			<head>
 				<ClientHintCheck nonce={nonce} />
 				<Meta />
@@ -312,7 +322,7 @@ function Document({
 				<meta name="viewport" content="width=device-width,initial-scale=1" />
 				<Links />
 			</head>
-			<body className="bg-background text-foreground">
+			<body className="h-full bg-background text-foreground">
 				{children}
 				<script
 					nonce={nonce}
@@ -327,62 +337,64 @@ function Document({
 	)
 }
 
-//_ _________________________________________________________________ App 🟡🟡
+//_ ______________________________________________________________________ App 🟡🟡
 function App() {
 	const data = useLoaderData<typeof loader>()
 	const nonce = useNonce()
 	const user = useOptionalUser()
-	const theme = useTheme()
+	const theme =
+		useTheme() /* const isOnSearchPage = matches.find(m => m.id === 'routes/users+/index')
+	console.log('🟡 isOnSearchPage →', isOnSearchPage)
+	const SearchBar = isOnSearchPage ? null : <SearchBar status="idle" /> *
 	const matches = useMatches()
+	console.log("🟡 matches →", matches)
 	const isOnSearchPage = matches.find(m => m.id === 'routes/users+/index')
-	const searchBar = isOnSearchPage ? null : <SearchBar status="idle" />
-	useToast(data.toast)
+	console.log('🟡 isOnSearchPage →', isOnSearchPage)
+	const SearchBar = isOnSearchPage ? null : <SearchBar status="idle" />
+	useToast(data.toast) */
 
-	//_ _________________________________________________________________ Return 🟡
+	//___ _________________________________________________________________ Return 🟡
 	return (
 		<Document nonce={nonce} theme={theme} env={data.ENV}>
-			<div className="flex h-screen flex-col items-center">
-				<header className="container max-w-xl px-4 py-6">
-					<nav className="flex items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
-						{/*	<Logo />*/}
+			<header className="w-full px-4 py-6 md:mx-auto md:max-w-2xl  lg:max-w-4xl xl:max-w-5xl">
+				<nav className="flex w-full items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
+					{/* // TODO   */}
+					{/*{' '}
+					<CheckboxField
+						labelProps={{
+							htmlFor: fields.search.id,
+							children: 'Remember me',
+						}}
+						buttonProps={getInputProps(fields.remember, { type: 'checkbox' })}
+						errors={fields.remember.errors}
+					/>{' '}
+					*/}
+					<SearchBar status="idle" />
+					<Checkbox />
+					<div
+						id="nav-account"
+						className="nav-account flex h-10 w-10 items-center rounded border-0 "
+					>
+						{user ? (
+							<UserDropdown />
+						) : (
+							<Button asChild variant="default" size="fill" className="rounded">
+								<Link to="/login" className=" h-8 w-8">
+									{/* <Avatar /> */}
+									<div dangerouslySetInnerHTML={{ __html: data.avatar }} />
+								</Link>
+							</Button>
+						)}
+					</div>
+				</nav>
+			</header>
 
-						{/* // TODO                                                      */}
-						{/*{' '}
-						<CheckboxField
-							labelProps={{
-								htmlFor: fields.search.id,
-								children: 'Remember me',
-							}}
-							buttonProps={getInputProps(fields.remember, { type: 'checkbox' })}
-							errors={fields.remember.errors}
-						/>{' '}
-						*/}
+			<Outlet />
 
-						<div className="block w-full">{searchBar} </div>
-
-						<div className="flex w-12 items-center p-0">
-							{user ? (
-								<UserDropdown />
-							) : (
-								<Button
-									asChild
-									variant="default"
-									size="fill"
-									className="h-full w-full"
-								>
-									<Link to="/login">Log In</Link>
-								</Button>
-							)}
-						</div>
-					</nav>
-				</header>
-
-				<Outlet />
-
-				<div className="container flex justify-between pb-5">
-					<ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
-				</div>
+			<div className="container absolute bottom-0 left-0 flex justify-between rounded pb-5">
+				<ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
 			</div>
+
 			<EpicToaster closeButton position="top-center" theme={theme} />
 			<EpicProgress />
 		</Document>
@@ -422,7 +434,7 @@ function UserDropdown() {
 						to={`/users/${user.username}`}
 						// this is for progressive enhancement
 						onClick={e => e.preventDefault()}
-						className="flex h-12 w-12 items-center gap-2 p-0"
+						className=""
 					>
 						<img
 							className="h-auto w-full rounded-full object-cover"
@@ -540,7 +552,7 @@ function ThemeSwitch({ userPreference }: { userPreference?: Theme | null }) {
 			<div className="flex gap-2">
 				<button
 					type="submit"
-					className="flex h-8 w-8 cursor-pointer items-center justify-center"
+					className="flex h-8 w-8 cursor-pointer items-center justify-center border-0"
 				>
 					{modeLabel[mode]}
 				</button>

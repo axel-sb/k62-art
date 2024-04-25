@@ -9,27 +9,27 @@ import {
 } from '@remix-run/node'
 import { useFetcher, useLoaderData } from '@remix-run/react'
 import { type FunctionComponent } from 'react'
+import { Icon } from '#app/components/ui/icon.js'
 import { getArtwork, updateArtwork } from '../resources+/search-data'
-import artwork from './artwork.css?url'
+import artworkId from './artworkId.css?url'
 
 // import artworkStyles from "../artworkStyles.css?url";
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: artwork }]
+export const links: LinksFunction = () => [
+	{ rel: 'stylesheet', href: artworkId },
+]
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
 	invariantResponse(params.artworkId, 'Missing artworkId param')
 	const formData = await request.formData()
 	const favorite = Object.fromEntries(formData)
 	console.log(' 🟠 ', formData, ' 🟠🟠 ', favorite)
-	await updateArtwork(parseInt(params.artworkId),)
-	console.log(
-		'🟠🟡🟠  parseInt(params.artworkId) →',
-		parseInt(params.artworkId),
-	)
+	await updateArtwork(parseInt(params.artworkId))
+	console.log('🔵🔵 params →', params)
 	return redirect(`/artworks/${params.artworkId}`)
 }
 
-//+ _____________________________________________  Loader function to fetch artwork data
+//___ __________________________________________  Loader function to fetch artwork data ↓
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
 	invariantResponse(params.artworkId, 'Missing artworkId param')
@@ -39,6 +39,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 			status: 404,
 		})
 	}
+
+	// The underscore _ is a convention used by some developers to indicate that the value at that position in the array is not going to be used. This is a way to "ignore" certain returned values when destructuring an array.
+
 	const filteredArtwork: Artwork = Object.fromEntries(
 		Object.entries(artwork).filter(
 			([_, value]) => value != null && value !== '',
@@ -53,95 +56,124 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function Artwork() {
 	const { artwork } = useLoaderData<typeof loader>()
-	console.log('🟡 artwork →', artwork)
 	const artist = {
-		__html: 'Artist: ' + artwork.Artist ?? '',
+		__html: 'Artist: <br>' + artwork.Artist,
 	}
 	const description = {
-		__html: 'Description: ' + artwork.Description ?? '',
+		__html: artwork.Description
+			? '<span class="font-normal">Description: </span>' + artwork.Description
+			: '',
 	}
 
+	const bgHsl = `hsl(${artwork.color_h} ${artwork.color_s}% ${artwork.color_l}%)`
+	const bgColor = `lch(from ${bgHsl} 5% c h)`
+
+	//___  _________________________ toggle details with animation
+
+	const handleClick = (e: { target: any }) => {
+		console.log('🟡 e.target →', e.target)
+		e.target.classList.toggle('open')
+	} 
 	//+ ____________________________________________________________________  return  JSX ↓
 
 	return (
-		<main>
-			<figure>
+		<main
+			className="h-full w-full overflow-auto p-4"
+			style={{ backgroundColor: bgColor }}
+		>
+			<div className="toolbar flex w-full items-center justify-between pb-4">
+				<button onClick={() => history.back()} className="back" type="button">
+					<Icon name="cross-1" />
+				</button>
+
+				<Favorite artwork={artwork} />
+			</div>
+			<figure className="w-full">
 				<img
 					alt={artwork.alt_text ?? undefined}
 					key={artwork.id}
-					src={artwork.image_url ?? './dummy.jpeg'}
+					src={artwork.image_url ?? '../../../four-mona-lisas-sm.jpg'}
 				/>
-				<figcaption>
+				<figcaption className="mx-auto flex w-full flex-col items-center justify-end">
+					{/* //___ _______________________________ Details */}
+
 					<details
 						id="artwork-info"
-						onClick={() => {
-							// scroll to top of details element
-							document.getElementById('artwork-info')?.scrollIntoView({
-								behavior: 'smooth',
-								block: 'start',
-							})
-						}}
+						className="styled max-w-full sm:max-w-[60ch] "
 					>
-						<summary>
-							<img
-								src="../../icons/info.svg"
-								alt="info"
-								className="details-marker"
-							/>{' '}
-							<Favorite artwork={artwork} />
-						</summary>
-						<ul>
-							<li dangerouslySetInnerHTML={artist}></li>
-							<li dangerouslySetInnerHTML={description}></li>
-							{Object.entries(artwork)
-								.filter(
-									([key, value]) =>
-										value &&
-										value !== '' &&
-										key !== 'id' &&
-										key !== 'image_url' &&
-										key !== 'alt_text' &&
-										key !== 'artist_title' &&
-										key !== 'date_end' &&
-										key !== 'favorite' &&
-										key !== 'is_boosted' &&
-										key !== 'Description' &&
-										key !== 'Artist' &&
-										key !== 'image_id',
-								)
+						{/* //___ _____________________________ Summary */}
 
-								.sort(([keyA], [keyB]) => {
-									const order = [
-										'Title',
-										'Artist',
-										'Date',
-										'Place',
-										'Description',
-										'Type',
-										'Style',
-										'Styles',
-										'Subject',
-										'Medium',
-										'Technique',
-										'Category',
-										'Term',
-										'Classification',
-										'Theme',
-										'width',
-										'height',
-										'provenance_text',
-									]
-									const indexA = order.indexOf(keyA)
-									const indexB = order.indexOf(keyB)
-									return indexA - indexB
-								})
-								.map(([key, value]) => (
-									<li key={key}>
-										<span>{key}:</span>{' '}
-										<span className="detail-content">{value}</span>
-									</li>
-								))}
-						</ul>
+						<summary className="relative pt-4 font-normal">
+							<div
+								onClick={handleClick}
+								className="relative flex justify-between"
+							>
+								{artwork.Title}
+							</div>
+						</summary>
+						{/*
+            // #region //___  Region DETAILS data to display ↓
+            omitting items that are empty or not needed for display
+            */}
+						<div className="expander" id="expander">
+							<div className="expander-content min-h-0 w-full">
+								<ul>
+									<li
+										dangerouslySetInnerHTML={artist}
+										className="hyphens-auto pb-4 font-normal"
+									></li>
+									<li
+										className="pt-4"
+										dangerouslySetInnerHTML={description}
+									></li>
+									{Object.entries(artwork)
+										.filter(
+											([key, value]) =>
+												value &&
+												value !== '' &&
+												key !== 'id' &&
+												key !== 'Title' &&
+												key !== 'image_url' &&
+												key !== 'alt_text' &&
+												key !== 'artist_title' &&
+												key !== 'Description' &&
+												key !== 'Artist' &&
+												key !== 'image_id',
+										)
+
+										/* .sort(([keyA], [keyB]) => {
+											const order = [
+												'Date',
+												'Place',
+												'Medium',
+												'Style',
+												'Subject',
+												'Type',
+												'Technique',
+												'Category',
+												'Term',
+												'Theme',
+												'width',
+												'height',
+												'provenance_text',
+											]
+											const indexA = order.indexOf(keyA)
+											const indexB = order.indexOf(keyB)
+											return indexA - indexB
+										}) */
+										.map(([key, value]) => (
+											<li key={key}>
+												<span className="font-normal">{key}:</span>{' '}
+												<span className="detail-content">{value}</span>
+											</li>
+										))}
+								</ul>
+
+								{/*
+// #endregion DETAILS
+*/}
+							</div>
+						</div>
 					</details>
 				</figcaption>
 			</figure>
@@ -162,7 +194,11 @@ const Favorite: FunctionComponent<{
 			<button
 				aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
 				name="favorite"
-				className="favorite"
+				className={
+					favorite
+						? 'favorite h-8 w-8 text-2xl'
+						: 'not-favorite h-8  w-8 text-2xl'
+				}
 				value={favorite ? 'false' : 'true'}
 			>
 				{favorite ? '★' : '☆'}

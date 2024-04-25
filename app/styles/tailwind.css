@@ -10,7 +10,7 @@
 		/* prefixed with foreground because it should look good on the background */
 		--foreground-destructive: 345 82.7% 40.8%;
 
-		--background: 0 0% 100%;
+		--background: #bcb4a6;
 		--foreground: 222.2 84% 4.9%;
 
 		--muted: 210 40% 93%;

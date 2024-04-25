@@ -96,7 +96,7 @@ export default function LoginPage() {
 		<div className="flex min-h-full flex-col justify-center pb-32 pt-20">
 			<div className="mx-auto w-full max-w-md">
 				<div className="flex flex-col gap-3 text-center">
-					<h1 className="text-h1">Welcome back!</h1>
+					<h1 className="text-h1">Welcome!</h1>
 					<p className="text-body-md text-muted-foreground">
 						Please enter your details.
 					</p>
@@ -179,7 +179,7 @@ export default function LoginPage() {
 						</ul>
 						<div className="flex items-center justify-center gap-2 pt-6">
 							<span className="text-muted-foreground">New here?</span>
-							<Link
+							<Link className="text-yellow-500"
 								to={
 									redirectTo
 										? `/signup?${encodeURIComponent(redirectTo)}`

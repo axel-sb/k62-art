@@ -15,13 +15,14 @@ import {
 	// useSubmit,
 } from '@remix-run/react'
 //import { useEffect, useState } from 'react'
+import { Icon } from '#app/components/ui/icon.js'
 import {
 	getArtworksByArtist,
 	/* getArtworksByArtist,
 	getArtworksByStyle,
 	getArtworksBySubject, */
 } from '../resources+/search-data'
-import artworks from './artworks.css?url'
+import artworks from './artworks-index.css?url'
 
 export const links: LinksFunction = () => [
 	{ rel: 'stylesheet', href: artworks },
@@ -29,12 +30,13 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
-	const queryArtist = url.searchParams.get('queryArtist') ?? undefined
-	const dataArtist = await getArtworksByArtist(queryArtist)
-	return json({ queryArtist, dataArtist })
+	console.log('🟢 url →', url, '🔴 url.search', url.search, 'searchParams, ')
+	const query = url.searchParams.get('query') ?? undefined
+	const dataArtist = await getArtworksByArtist(query)
+	return json({ query, dataArtist })
 }
 
-/* const queryArtist = url.searchParams.get('queryArtist') ?? undefined
+/* const query = url.searchParams.get('query') ?? undefined
 	const queryStyle = url.searchParams.get('queryStyle') ?? undefined
 	const querySubject = url.searchParams.get('querySubject') ?? undefined */
 // const dataAll = await getArtworks()
@@ -45,7 +47,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const dataAny = await getArtworksByAny(queryAny)
 	return json({ dataAny, queryAny })
 } */
-/* const dataArtist = await getArtworksByArtist(queryArtist)
+/* const dataArtist = await getArtworksByArtist(query)
 	const dataStyle = await getArtworksByStyle(queryStyle)
 	const dataSubject = await getArtworksBySubject(querySubject) */
 
@@ -55,7 +57,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		dataStyle,
 		dataSubject,
 		queryAny,
-		queryArtist,
+		query,
 		queryStyle,
 		querySubject,
 	})
@@ -83,11 +85,11 @@ const Checkbox: React.FC<CheckboxProps> = ({ label, value, onChange }) => {
 export default function ArtworksPage() {
 	const { dataArtist } = useLoaderData<typeof loader>()
 
-	console.log('🟡 dataArtist →', dataArtist)
+	// console.log('🟡 dataArtist →', dataArtist)
 
 	return (
 		//+ ____________________________________________________________________  return  JSX ↓
-		<main>
+		<main className="flex items-center justify-center">
 			{/*
       <header className="row-start-1 row-end-2 flex h-fit w-screen items-center justify-between">
 				{' '}
@@ -104,27 +106,32 @@ export default function ArtworksPage() {
 			</header>
       */}
 
-			<ul className="artworks-preview">
+			<ul className="artworks-preview p-b-8 flex w-full flex-col items-center justify-start gap-16 md:max-h-[calc(fit/2)] md:flex-wrap ">
 				{dataArtist.map(artwork => (
-					<li key={artwork.id}>
+					<li
+						key={artwork.id}
+						className="display-flex gap-4 md:w-[calc((100%/2)-1rem)] "
+					>
 						<Link to={`${artwork.id}`}>
 							{artwork.Title ? (
 								<>
-									<figure>
+									<figure className="p-4 hover:grid hover:items-start">
 										<img
 											alt={artwork.alt_text ?? undefined}
 											key={artwork.id}
 											src={artwork.image_url ?? '../dummy.jpeg'}
 										/>
 										<figcaption>
-											{artwork.Title}
-											{'  '}
-											{artwork.Artist} <button type="button">more ⮁</button>
+											<div>{artwork.Title}</div>
+											<div className="flex max-w-full justify-between">
+												<span>{artwork.artist_title}</span>
+												<Icon name="arrow-right" className="flex-1 justify-self-end"></Icon>
+											</div>
 										</figcaption>
 									</figure>
 								</>
 							) : (
-								<i>No Art</i>
+								<i>No Artworks found for </i>
 							)}
 						</Link>
 					</li>

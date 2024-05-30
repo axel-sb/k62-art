@@ -1,3 +1,27 @@
+/* gudea-regular/italic/bold - latin  */
+/* @font-face {
+  font-display: swap;
+  font-family: 'Gudea';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/gudea-v15-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Gudea';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/gudea-v15-latin-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Gudea';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/gudea-v15-latin-700.woff2') format('woff2');
+} */
 /* button {
 	box-shadow:
 		inset -0.5px -0.5px 0.5px rgba(255, 255, 255, 0.25),
@@ -5,72 +29,71 @@
 } */
 
 :root {
-  font-size: 106,25%;
+  --clamped: clamp(106.25%, 0.6855rem + 1.2903vw, 1.25rem);
+  font-size: var(--clamped);
+  color-scheme: dark;
 }
 
 html {
-  height: 100vh;
-
+  height: 100dvh;
 }
 
 body {
-	--clamped: clamp(1rem, 0.6855rem + 1.2903vw, 1.25rem);
-	font-size: var(--clamped);
-  font-weight: 300;
+  font-weight: 400;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  height: 100%;
+  height: 100dvh;
+  color-scheme: dark;
 }
 
-/* header {
-  width: calc(70vh / 1.26)!important;
-} */
-
-/* prevent autofill box from having white bg */
-#queryArtist:-webkit-autofill,
-input[type='search'] :-webkit-autofill:focus {
-	transition:
-		background-color 0s 600000s,
-		color 0s 600000s !important;
-}
-
-nav #queryArtist:has(.focus-visible, :focus-visible) {
-  &nav > #nav-account.nav-account {display: none}
-}
-
-nav:focus-within #nav-account.nav-account {display: none}
-
-figcaption.index {
-	color: #f5f5f2aa;
-	font-size: large;
-	padding-top: 2rem;
-	text-align: center;
-	width: 100%;
-}
 
 .animate-hue {
-	animation: hue 60s 15s linear infinite;
+  animation: hue 60s 15s linear infinite;
 }
 
 @keyframes spin {
-	from {
-		filter: hue-rotate(45deg);
-	}
+  from {
+    filter: hue-rotate(45deg);
+  }
 
-	to {
-		filter: hue-rotate(44deg);
-	}
+  to {
+    filter: hue-rotate(44deg);
+  }
 }
 
 @keyframes hue {
-	from {
-		filter: hue-rotate(0deg);
-	}
+  from {
+    filter: hue-rotate(0deg);
+  }
 
-	to {
-		filter: hue-rotate(359deg);
-	}
+  to {
+    filter: hue-rotate(359deg);
+  }
+}
+
+div>label {
+  text-align: center;
+  margin: 0 auto;
+
+  input {
+    margin: 0 auto;
+  }
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition:
+    background-color 0s 600000s,
+    color 0s 600000s !important;
+}
+
+input:-internal-autofill-selected {
+  appearance: menulist-button;
+  background-image: none !important;
+  background-color: light-dark(rgba(70, 90, 126, 0.4), rgba(70, 90, 126, 0.4)) !important;
+  color: fieldtext !important;
 }

@@ -1,11 +1,10 @@
-import { useLoaderData, useSubmit, Form } from '@remix-run/react'
+import { Form, useSearchParams, useSubmit } from '@remix-run/react'
 import { useId } from 'react'
-import { type loader } from '#app/root.tsx'
-import { useIsPending, useDebounce } from '#app/utils/misc'
-import { Icon } from './ui/icon'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
-import { StatusButton } from './ui/status-button'
+import { useDebounce, useIsPending } from '#app/utils/misc.tsx'
+import { Icon } from './ui/icon.tsx'
+import { Input } from './ui/input.tsx'
+import { Label } from './ui/label.tsx'
+import { StatusButton } from './ui/status-button.tsx'
 
 export function SearchBar({
 	status,
@@ -16,19 +15,12 @@ export function SearchBar({
 	autoFocus?: boolean
 	autoSubmit?: boolean
 }) {
-	// const navigation = useNavigation()
-	/* const searching =
-		navigation.location &&
-		new URLSearchParams(navigation.location.search).has('q') */
-	const { query /* queryArtist, queryStyle, querySubject */ } =
-		useLoaderData<typeof loader>()
 	const id = useId()
-	// const [searchParams] = useSearchParams()
-
+	const [searchParams] = useSearchParams()
 	const submit = useSubmit()
 	const isSubmitting = useIsPending({
 		formMethod: 'GET',
-		formAction: '/artworks/artworks/',
+		formAction: '/artworks',
 	})
 
 	const handleFormChange = useDebounce((form: HTMLFormElement) => {
@@ -37,7 +29,6 @@ export function SearchBar({
 
 	return (
 		<Form
-			id="search-form"
 			method="GET"
 			action="/artworks"
 			className="flex flex-wrap items-center justify-center gap-2"
@@ -48,12 +39,12 @@ export function SearchBar({
 					Search
 				</Label>
 				<Input
-					type="search"
-					name="query"
-					id="query"
-					defaultValue={query ?? ''}
-					placeholder="Search ..."
-					className="w-full font-light"
+					type="color"
+					name="search"
+					id={id}
+					defaultValue={searchParams.get('search') ?? ''}
+					placeholder="Search"
+					className="w-full"
 					autoFocus={autoFocus}
 				/>
 			</div>

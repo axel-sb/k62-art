@@ -284,6 +284,7 @@ async function seed() {
 		color_h: number
 		color_s: number
 		color_l: number
+		color: string
 		is_zoomable: boolean
 		has_multimedia_resources: boolean
 		has_educational_resources: boolean
@@ -308,27 +309,27 @@ To resolve this issue, you can use a type assertion to tell TypeScript that you'
 		await prisma.artwork.create({
 			data: {
 				id: parseInt(artwork.id),
-				title: artwork.title,
-				artist_display: artwork.artist_display,
+				Title: artwork.title,
+				Artist: artwork.artist_display,
 				date_end: artwork.date_end,
-				date_display: artwork.date_display,
+				Date: artwork.date_display,
 				artist_title: artwork.artist_title,
 				// provenance_text: artwork.provenance_text,
 				alt_text: artwork.alt_text,
 				width: artwork.width,
 				height: artwork.height,
-				description: artwork.description,
-				place_of_origin: artwork.place_of_origin,
-				medium_display: artwork.medium_display,
-				artwork_type_title: artwork.artwork_type_title,
-				category_titles: artwork.category_titles,
-				term_titles: artwork.term_titles,
-				style_title: artwork.style_title,
-				style_titles: artwork.style_titles,
-				subject_titles: artwork.subject_titles,
-				classification_titles: artwork.classification_titles,
-				technique_titles: artwork.technique_titles,
-				theme_titles: artwork.theme_titles,
+				Description: artwork.description,
+				Place: artwork.place_of_origin,
+				Medium: artwork.medium_display,
+				Type: artwork.artwork_type_title,
+				Category: artwork.category_titles,
+				Term: artwork.term_titles,
+				Style: artwork.style_title,
+				Styles: artwork.style_titles,
+				Subject: artwork.subject_titles,
+				Classification: artwork.classification_titles,
+				Technique: artwork.technique_titles,
+				Theme: artwork.theme_titles,
 				colorfulness: artwork.colorfulness,
 				color_percentage: artwork.color_percentage,
 				color_population: artwork.color_population,

@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", "other/ugly-avatar/src/index2.js"],
+  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", "other/ugly-avatar/src/index2.js"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "isolatedModules": true,

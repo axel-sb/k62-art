@@ -1,50 +1,30 @@
-// #region imports
-import { useForm, getFormProps /* getInputProps */ } from '@conform-to/react'
-import { parseWithZod } from '@conform-to/zod'
-import { invariantResponse } from '@epic-web/invariant'
 import {
 	json,
 	type LoaderFunctionArgs,
-	type ActionFunctionArgs,
 	type HeadersFunction,
 	type LinksFunction,
 	type MetaFunction,
 } from '@remix-run/node'
-
 import {
 	Form,
 	Link,
 	Links,
 	Meta,
-	// NavLink,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
-	useFetcher,
-	useFetchers,
 	useLoaderData,
-	// useMatches,
-	// useSearchParams,
+	useNavigation,
+	useNavigate,
 	useSubmit,
 } from '@remix-run/react'
 import { withSentry } from '@sentry/remix'
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useId } from 'react'
 import { HoneypotProvider } from 'remix-utils/honeypot/react'
-// import { c } from 'vitest/dist/reporters-P7C2ytIv.js'
-import { z } from 'zod'
-import { Checkbox } from '#app/components/ui/checkbox.tsx'
-import {
-	combineHeaders,
-	getDomainUrl,
-	getUserImgSrc,
-} from '#app/utils/misc.tsx'
-
-import styleSheetUrl from './app.css?url'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { EpicProgress } from './components/progress-bar.tsx'
-import { SearchBar } from './components/search-bar.tsx'
-// import { useToast } from './components/toaster.tsx'
-import { Avatar } from './components/ugly-avatar'
+// import { SearchBar } from './components/search-bar.tsx'
+import { useToast } from './components/toaster.tsx'
 import { Button } from './components/ui/button.tsx'
 import {
 	DropdownMenu,
@@ -53,32 +33,39 @@ import {
 	DropdownMenuPortal,
 	DropdownMenuTrigger,
 } from './components/ui/dropdown-menu.tsx'
-import { Icon, href as iconsHref } from './components/ui/icon.tsx'
-import { EpicToaster } from './components/ui/sonner.tsx'
 
+import { Icon, href as iconsHref } from './components/ui/icon.tsx'
+import { Input } from './components/ui/input'
+import { Label } from './components/ui/label'
+import { EpicToaster } from './components/ui/sonner.tsx'
+import { StatusButton } from './components/ui/status-button'
 import {
-	getArtworksByAny,
-	// getArtworksByArtist, // 🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
-	/* getArtworksByArtist,
-	getArtworksByStyle,
-	getArtworksBySubject, */
-} from './routes/resources+/search-data'
+	getAny,
+	getArtist,
+	getStyle,
+	getPlace,
+	getDate,
+	getColor,
+} from './routes/resources+/search-data.server'
+import { ThemeSwitch, useTheme } from './routes/resources+/theme-switch.tsx'
+import searchBarStyles from './search-bar.css?url'
 import tailwindStyleSheetUrl from './styles/tailwind.css?url'
 import { getUserId, logout } from './utils/auth.server.ts'
-import { ClientHintCheck, getHints, useHints } from './utils/client-hints.tsx'
+import { ClientHintCheck, getHints } from './utils/client-hints.tsx'
 import { prisma } from './utils/db.server.ts'
 import { getEnv } from './utils/env.server.ts'
 import { honeypot } from './utils/honeypot.server.ts'
+import {
+	combineHeaders,
+	getDomainUrl,
+	getUserImgSrc,
+	useIsPending,
+} from './utils/misc.tsx'
 import { useNonce } from './utils/nonce-provider.ts'
-import { useRequestInfo } from './utils/request-info.ts'
-import { type Theme, setTheme, getTheme } from './utils/theme.server.ts'
+import { type Theme, getTheme } from './utils/theme.server.ts'
 import { makeTimings, time } from './utils/timing.server.ts'
 import { getToast } from './utils/toast.server.ts'
 import { useOptionalUser, useUser } from './utils/user.ts'
-
-// #endregion imports
-
-// #region links & meta
 
 export const links: LinksFunction = () => {
 	return [
@@ -89,7 +76,7 @@ export const links: LinksFunction = () => {
 		{
 			rel: 'alternate icon',
 			type: 'image/png',
-			href: '/favicons/favicon-32x32.png media="(prefers-color-scheme: dark)"',
+			href: '/favicons/favicon-32x32.png',
 		},
 		{ rel: 'apple-touch-icon', href: '/favicons/apple-touch-icon.png' },
 		{
@@ -98,42 +85,26 @@ export const links: LinksFunction = () => {
 			crossOrigin: 'use-credentials',
 		} as const, // necessary to make typescript happy
 		//These should match the css preloads above to avoid css as render blocking resource
-		{ rel: 'icon', type: 'image/png', href: '/favicons/favicon.png' },
+		{ rel: 'icon', type: 'image/svg+xml', href: '/favicons/favicon.svg' },
 		{ rel: 'stylesheet', href: tailwindStyleSheetUrl },
-		{ rel: 'stylesheet', href: styleSheetUrl },
+		{ rel: 'stylesheet', href: searchBarStyles },
 	].filter(Boolean)
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [
-		{ title: data ? '*Kunsträuber' : 'Error | Kunsträuber' },
-		{
-			name: 'description',
-			content: `Good artists borrow, great artists steal`,
-		},
+		{ title: data ? 'Epic Notes' : 'Error | Epic Notes' },
+		{ name: 'description', content: `Your own captain's log` },
 	]
 }
 
-// #endregion links & meta
-
-/* const LoginFormSchema = z.object({
-	username: UsernameSchema,
-	password: PasswordSchema,
-	redirectTo: z.string().optional(),
-	remember: z.boolean().optional(),
-}) */
-//🚩
-//🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  ⬇︎ Loader ⬇︎  🟠
-// #region loader
-
 export async function loader({ request }: LoaderFunctionArgs) {
 	const timings = makeTimings('root loader')
-	const userId: string | null = await time(() => getUserId(request), {
+	const userId = await time(() => getUserId(request), {
 		timings,
 		type: 'getUserId',
 		desc: 'getUserId in root',
 	})
-	console.log('🟡 userId →', userId) //___ ⚪️
 
 	const user = userId
 		? await time(
@@ -167,18 +138,40 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const { toast, headers: toastHeaders } = await getToast(request)
 	const honeyProps = honeypot.getInputProps()
 
-	// 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣 🟣⚪️🟣
+	const url = new URL(request.url)
+	const query = url.searchParams.get('q') ?? undefined
+	const searchType = url.searchParams.get('searchType') ?? 'All'
 
-	const url = new URL(request.url) //
-	// const queryAny = url.searchParams.get('queryAny') ?? undefined
-	// let dataAny = await getArtworksByAny(queryAny)
-	const query = url.searchParams.get('query') ?? undefined
-	let data = await getArtworksByAny(query)
-	let avatar = Avatar()
+	let data
+	switch (searchType) {
+		case 'all':
+			data = await getAny(query)
+			break
+		case 'artist':
+			data = await getArtist(query)
+			break
+		case 'style':
+			data = await getStyle(query)
+			break
+		case 'place':
+			data = await getPlace(query)
+			break
+		case 'date':
+			data = await getDate(Number(query))
+			break
+		case 'color':
+			data = await getColor((query ?? '').toString())
+			break
+
+		default:
+			data = await getAny('Picasso')
+	}
 
 	return json(
 		{
 			user,
+			data,
+			searchType,
 			requestInfo: {
 				hints: getHints(request),
 				origin: getDomainUrl(request),
@@ -190,9 +183,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			ENV: getEnv(),
 			toast,
 			honeyProps,
-			query,
-			data,
-			avatar,
 		},
 		{
 			headers: combineHeaders(
@@ -203,74 +193,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	)
 }
 
-// #endregion loader
-//🚩 > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >  ⬆︎ Loader ⬆︎  🟠
-
-//+ ................................................................ Search Bar 2  🔎.
-
-// #region search bar 2
-
-/* export function SearchBar2({
-	status,
-	autoFocus = false,
-	autoSubmit = false,
-}: {
-	status: 'idle' | 'pending' | 'success' | 'error'
-	autoFocus?: boolean
-	autoSubmit?: boolean
-}) {
-	const { queryAny  } =
-		useLoaderData<typeof loader>()
-	const id = useId()
-
-	const submit = useSubmit()
-	const isSubmitting = useIsPending({
-		formMethod: 'GET',
-		formAction: '/artworks',
-	})
-
-	const handleFormChange = useDebounce((form: HTMLFormElement) => {
-		submit(form)
-	}, 400)
-
-	return (
-		<Form
-			id="search-form"
-			method="GET"
-			action="/artworks"
-			className="search-bar-2 flex flex-wrap items-center justify-center gap-2"
-			onChange={e => autoSubmit && handleFormChange(e.currentTarget)}
-		>
-			<div className="flex-1">
-				<Label htmlFor={id} className="sr-only">
-					Search
-				</Label>
-				<Input
-					type="search"
-					name="queryAny"
-					id="queryAny"
-					defaultValue={queryAny ?? ''}
-					placeholder="Search Artworks"
-					className="w-full"
-					autoFocus={autoFocus}
-				/>
-			</div>
-			<div>
-				<StatusButton
-					type="submit"
-					status={isSubmitting ? 'pending' : status}
-					className="flex w-full items-center justify-center"
-				>
-					<Icon name="magnifying-glass" size="md" />
-					<span className="sr-only">Search</span>
-				</StatusButton>
-			</div>
-		</Form>
-	)
-} */
-
-// #endregion search bar
-
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	const headers = {
 		'Server-Timing': loaderHeaders.get('Server-Timing') ?? '',
@@ -278,51 +200,32 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 	return headers
 }
 
-const ThemeFormSchema = z.object({
-	theme: z.enum(['system', 'light', 'dark']),
-})
-
-export async function action({ request }: ActionFunctionArgs) {
-	const formData = await request.formData()
-	const submission = parseWithZod(formData, {
-		schema: ThemeFormSchema,
-	})
-
-	invariantResponse(submission.status === 'success', 'Invalid theme received')
-
-	const { theme } = submission.value
-
-	const responseInit = {
-		headers: { 'set-cookie': setTheme(theme) },
-	}
-	return json({ result: submission.reply() }, responseInit)
-}
-
 function Document({
 	children,
 	nonce,
-	theme = 'dark',
+	theme = 'light',
 	env = {},
+	allowIndexing = true,
 }: {
 	children: React.ReactNode
 	nonce: string
 	theme?: Theme
 	env?: Record<string, string>
+	allowIndexing?: boolean
 }) {
 	return (
-		<html
-			lang="en"
-			translate="no"
-			className={`${theme} h-screen overflow-x-hidden`}
-		>
+		<html lang="en" className={`${theme} h-full overflow-x-hidden`}>
 			<head>
 				<ClientHintCheck nonce={nonce} />
 				<Meta />
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width,initial-scale=1" />
+				{allowIndexing ? null : (
+					<meta name="robots" content="noindex, nofollow" />
+				)}
 				<Links />
 			</head>
-			<body className="h-full bg-background text-foreground">
+			<body className="bg-background text-foreground">
 				{children}
 				<script
 					nonce={nonce}
@@ -337,79 +240,70 @@ function Document({
 	)
 }
 
-//_ ______________________________________________________________________ App 🟡🟡
 function App() {
 	const data = useLoaderData<typeof loader>()
 	const nonce = useNonce()
 	const user = useOptionalUser()
-	const theme =
-		useTheme() /* const isOnSearchPage = matches.find(m => m.id === 'routes/users+/index')
-	console.log('🟡 isOnSearchPage →', isOnSearchPage)
-	const SearchBar = isOnSearchPage ? null : <SearchBar status="idle" /> *
-	const matches = useMatches()
-	console.log("🟡 matches →", matches)
-	const isOnSearchPage = matches.find(m => m.id === 'routes/users+/index')
-	console.log('🟡 isOnSearchPage →', isOnSearchPage)
-	const SearchBar = isOnSearchPage ? null : <SearchBar status="idle" />
-	useToast(data.toast) */
+	const theme = useTheme()
+	// const matches = useMatches()
+	/* const isOnSearchPage = matches.find(m => m.id === 'routes/users+/index')
+	const searchBar = isOnSearchPage ? null : <SearchBar status="idle" /> */
+	const allowIndexing = data.ENV.ALLOW_INDEXING !== 'false'
+	useToast(data.toast)
 
-	//___ _________________________________________________________________ Return 🟡
 	return (
-		<Document nonce={nonce} theme={theme} env={data.ENV}>
-			<header className="w-full px-4 py-6 md:mx-auto md:max-w-2xl  lg:max-w-4xl xl:max-w-5xl">
-				<nav className="flex w-full items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
-					{/* // TODO   */}
-					{/*{' '}
-					<CheckboxField
-						labelProps={{
-							htmlFor: fields.search.id,
-							children: 'Remember me',
-						}}
-						buttonProps={getInputProps(fields.remember, { type: 'checkbox' })}
-						errors={fields.remember.errors}
-					/>{' '}
-					*/}
-					<SearchBar status="idle" />
-					<Checkbox />
-					<div
-						id="nav-account"
-						className="nav-account flex h-10 w-10 items-center rounded border-0 "
-					>
-						{user ? (
-							<UserDropdown />
-						) : (
-							<Button asChild variant="default" size="fill" className="rounded">
-								<Link to="/login" className=" h-8 w-8">
-									{/* <Avatar /> */}
-									<div dangerouslySetInnerHTML={{ __html: data.avatar }} />
-								</Link>
-							</Button>
-						)}
-					</div>
-				</nav>
-			</header>
+		<Document
+			nonce={nonce}
+			theme={theme}
+			allowIndexing={allowIndexing}
+			env={data.ENV}
+		>
+			<div className="flex h-screen flex-col justify-between">
+				<header className="container py-6">
+					<nav className="flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:gap-8">
+						<Logo />
+						<div className="flex items-center gap-10">
+							{user ? (
+								<UserDropdown />
+							) : (
+								<Button asChild variant="default" size="lg">
+									<Link to="/login">Log In</Link>
+								</Button>
+							)}
+						</div>
+						<div className="block w-full sm:hidden">
+							<SearchBar status="idle" />
+						</div>
+					</nav>
+				</header>
 
-			<Outlet />
+				<div className="flex-1">
+					<Outlet />
+				</div>
 
-			<div className="container absolute bottom-0 left-0 flex justify-between rounded pb-5">
-				<ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
+				<div className="container flex justify-between pb-5">
+					<Logo />
+					<ThemeSwitch userPreference={data.requestInfo.userPrefs.theme} />
+				</div>
 			</div>
-
 			<EpicToaster closeButton position="top-center" theme={theme} />
 			<EpicProgress />
 		</Document>
 	)
 }
 
-/* function Logo() {
+function Logo() {
 	return (
-		<div className="flex max-w-12 flex-col items-center text-center xl:order-2 xl:items-center xl:text-left">
-			<NavLink to="/" className="home">
-				<video className="" playsInline autoPlay src="../animation2.mp4" />
-			</NavLink>
-		</div>
+		<Link to="/" className="group grid leading-snug">
+			<span className="font-light transition group-hover:-translate-x-1">
+				epic
+			</span>
+			<span className="font-bold transition group-hover:translate-x-1">
+				notes
+			</span>
+		</Link>
 	)
-} */
+}
 
 function AppWithProviders() {
 	const data = useLoaderData<typeof loader>()
@@ -429,21 +323,21 @@ function UserDropdown() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button asChild variant="secondary" size="fill">
+				<Button asChild variant="secondary">
 					<Link
 						to={`/users/${user.username}`}
 						// this is for progressive enhancement
 						onClick={e => e.preventDefault()}
-						className=""
+						className="flex items-center gap-2"
 					>
 						<img
-							className="h-auto w-full rounded-full object-cover"
+							className="h-8 w-8 rounded-full object-cover"
 							alt={user.name ?? user.username}
 							src={getUserImgSrc(user.image?.id)}
 						/>
-						{/* <span className="text-body-sm text-secondary-foreground">
+						<span className="text-body-sm font-bold">
 							{user.name ?? user.username}
-						</span> */}
+						</span>
 					</Link>
 				</Button>
 			</DropdownMenuTrigger>
@@ -483,84 +377,6 @@ function UserDropdown() {
 	)
 }
 
-/**
- * @returns the user's theme preference, or the client hint theme if the user
- * has not set a preference.
- */
-export function useTheme() {
-	const hints = useHints()
-	const requestInfo = useRequestInfo()
-	const optimisticMode = useOptimisticThemeMode()
-	if (optimisticMode) {
-		return optimisticMode === 'system' ? hints.theme : optimisticMode
-	}
-	return requestInfo.userPrefs.theme ?? hints.theme
-}
-
-/**
- * If the user's changing their theme mode preference, this will return the
- * value it's being changed to.
- */
-export function useOptimisticThemeMode() {
-	const fetchers = useFetchers()
-	const themeFetcher = fetchers.find(f => f.formAction === '/')
-
-	if (themeFetcher && themeFetcher.formData) {
-		const submission = parseWithZod(themeFetcher.formData, {
-			schema: ThemeFormSchema,
-		})
-
-		if (submission.status === 'success') {
-			return submission.value.theme
-		}
-	}
-}
-
-function ThemeSwitch({ userPreference }: { userPreference?: Theme | null }) {
-	const fetcher = useFetcher<typeof action>()
-
-	const [form] = useForm({
-		id: 'theme-switch',
-		lastResult: fetcher.data?.result,
-	})
-
-	const optimisticMode = useOptimisticThemeMode()
-	const mode = optimisticMode ?? userPreference ?? 'system'
-	const nextMode =
-		mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system'
-	const modeLabel = {
-		light: (
-			<Icon name="sun">
-				<span className="sr-only">Light</span>
-			</Icon>
-		),
-		dark: (
-			<Icon name="moon">
-				<span className="sr-only">Dark</span>
-			</Icon>
-		),
-		system: (
-			<Icon name="laptop">
-				<span className="sr-only">System</span>
-			</Icon>
-		),
-	}
-
-	return (
-		<fetcher.Form method="POST" {...getFormProps(form)}>
-			<input type="hidden" name="theme" value={nextMode} />
-			<div className="flex gap-2">
-				<button
-					type="submit"
-					className="flex h-8 w-8 cursor-pointer items-center justify-center border-0"
-				>
-					{modeLabel[mode]}
-				</button>
-			</div>
-		</fetcher.Form>
-	)
-}
-
 export function ErrorBoundary() {
 	// the nonce doesn't rely on the loader so we can access that
 	const nonce = useNonce()
@@ -577,5 +393,122 @@ export function ErrorBoundary() {
 		<Document nonce={nonce}>
 			<GeneralErrorBoundary />
 		</Document>
+	)
+}
+
+// https://codesandbox.io/p/sandbox/react-colorful-demo-u5vwp?file=%2Fpackage.json
+
+// _______ _____________________________________  LOADER FUNCTION
+
+//  _____   _________________________________________  Search Bar
+export function SearchBar({
+	status,
+	autoFocus = false,
+	autoSubmit = false,
+}: {
+	status: 'idle' | 'pending' | 'success' | 'error'
+	autoFocus?: boolean
+	autoSubmit?: boolean
+}) {
+	const { searchType } = useLoaderData<typeof loader>()
+	const navigation = useNavigation()
+	const navigate = useNavigate()
+	const searching =
+		navigation.location &&
+		new URLSearchParams(navigation.location.search).has('q')
+
+	const id = useId()
+
+	// const submit = useSubmit()
+	const isSubmitting = useIsPending({
+		formMethod: 'GET',
+		formAction: '/artworks/artworks/',
+	})
+
+	/* const handleFormChange = useDebounce((form: HTMLFormElement) => {
+    submit(form)
+  }, 400) */
+
+	const [selectedSearchType, setSelectedSearchType] = useState<
+		'all' | 'artist' | 'style' | 'place' | 'date' | 'color' | ''
+	>('')
+
+	useEffect(() => {
+		if (selectedSearchType === 'color') {
+			navigate('/artworks/colorSearch')
+		}
+	}, [navigate, selectedSearchType])
+
+	const [searchParam, setSearchParam] = useState<string>('')
+
+	//  _____   _____________________________return
+
+	return (
+		<Form
+			id="search-form"
+			method="GET"
+			action="/artworks"
+			className="flex flex-wrap items-center justify-center gap-2"
+		>
+			<div className="flex-1">
+				<Input
+					type="search"
+					name="q"
+					id="q"
+					className={
+						searching ? 'loading w-full font-light' : 'w-full font-light'
+					}
+					value={searchParam}
+					placeholder={'Search ' + searchType}
+					autoFocus={autoFocus}
+					onChange={e => setSearchParam(e.target.value)}
+				/>
+
+				{/* __________________________________________   Search Type  */}
+				<div className="search-filters">
+					<Label htmlFor={id} className="sr-only">
+						Search Type
+					</Label>
+					<select
+						id="searchType"
+						name="searchType"
+						value={searchType}
+						onChange={e => {
+							const selectedValue = e.target.value as
+								| 'all'
+								| 'artist'
+								| 'style'
+								| 'place'
+								| 'date'
+								| 'color'
+
+							setSelectedSearchType(selectedValue)
+
+							if (selectedValue === 'color') {
+								navigate('/artworks/colorSearch')
+							}
+						}}
+						className="w-full bg-background font-light"
+					>
+						<option value="all">All</option>
+						<option value="artist">Artist</option>
+						<option value="style">Style</option>
+						<option value="place">Place</option>
+						<option value="date">Date</option>
+						<option value="color">Color</option>
+					</select>
+				</div>
+			</div>
+			<div>
+				<StatusButton
+					type="submit"
+					status={isSubmitting ? 'pending' : status}
+					className="flex w-full items-center justify-center"
+				>
+					<Icon name="magnifying-glass" size="md" />
+					<span className="sr-only">Search</span>
+				</StatusButton>
+			</div>
+		</Form>
 	)
 }

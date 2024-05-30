@@ -17,32 +17,37 @@
     "*.db": "sqlite-viewer.view"
   },
   "workbench.colorCustomizations": {
-    "activityBar.foreground": "#f4f2e9",
-    "activityBar.inactiveForeground": "#f4f2e999",
-    "activityBarBadge.background": "#54cb88",
-    "activityBarBadge.foreground": "#15202b",
-    "commandCenter.border": "#f4f2e999",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#e09cc7",
+    "titleBar.activeBackground": "#e09cc7",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#e09cc799",
+    "titleBar.inactiveForeground": "#15202b99",
     "editorError.foreground": "#000000ff",
-    "editorGroup.border": "#b06b35",
     "editorInfo.foreground": "#000000ff",
     "editorWarning.foreground": "#000000ff",
-    "panel.border": "#b06b35",
-    "sash.hoverBorder": "#b06b35",
-    "sideBar.border": "#b06b35",
-    "statusBar.background": "#623b1d",
-    "statusBar.border": "#623b1d",
-    "statusBar.foreground": "#f4f2e9",
-    "statusBarItem.hoverBackground": "#895329",
-    "statusBarItem.remoteBackground": "#623b1d",
-    "statusBarItem.remoteForeground": "#f4f2e9",
-    "tab.activeBorder": "#b06b35",
-    "titleBar.activeBackground": "#b06b35",
-    "titleBar.activeForeground": "#f4f2e9",
-    "titleBar.border": "#b06b35",
-    "titleBar.inactiveBackground": "#b06b3599",
-    "titleBar.inactiveForeground": "#f4f2e999",
-    "activityBar.activeBackground": "#b06b35",
-    "activityBar.background": "#b06b35"
+    "tab.activeBorder": "#e09cc7",
+    "workbench.colorCustomizations": {
+      "tab.activeBackground": "#282c34",
+      "activityBar.background": "#282c34",
+      "sideBar.background": "#282c34"
+    },
+    "peacock.color": "#6e3682",
+    "svg.preview.background": "transparent",
+    "editor.fontSize": 16,
+    "editor.lineHeight": 22,
+    "editor.fontFamily": "Operator Mono Lig Light",
+    "editor.fontWeight": 700,
+    "terminal.integrated.fontWeight": 500
   },
-  "peacock.color": "#895329"
+  "editor.fontSize": 16,
+  "editor.fontFamily": "'Operator Mono Lig Light', Menlo, Monaco, 'Courier New', monospace",
+  "files.autoSave": "afterDelay",
+  "github.copilot.enable": {
+    "scminput": "true"
+  },
+  "github.copilot.chat.scopeSelection": true,
+  "openinmarked.apppath": "/Applications/Setapp/Marked.app",
+  "peacock.color": "#e09cc7",
+  "svg.preview.background": "custom"
 }

@@ -45,13 +45,20 @@
   display: none;
 }
 
+ul {
+  max-height: 90dvh;
+}
+
+.container {
+  display: none;
+}
+
 main {
   padding: 1rem;
 }
 
 .artworks-preview {
   animation: 3s 0s fade-in forwards;
-  overflow: hidden auto;
 }
 
 li {
@@ -84,24 +91,29 @@ figure:hover {
 
   & figcaption {
     position: absolute;
-    top: 1em;
+    bottom: clamp(1rem, 3rem, 30%);
+    right: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     justify-content: center;
     align-items: flex-start;
-    width: clamp(10ch, 100%, 20ch);
-    max-width: 40ch;
+    width: clamp(20ch, 60%, 90ch);
+    height: -moz-fit-content;
     height: fit-content;
-    padding: 1rem;
-    color: #020817;
-    background: #bcb4a6d0;
+    padding: 2rem;
+    font-size: 0.9rem;
+    color: #bcb4a6;
+    background: #2f385199;
+    -webkit-backdrop-filter: blur(14px) brightness(80%);
+    backdrop-filter: blur(14px) brightness(80%);
     border-radius: 0.3em;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
     line-height: 1.1;
     font-weight: 400;
     animation: 3s 0s fade-out forwards;
     overflow: hidden;
-
   }
 }
 
